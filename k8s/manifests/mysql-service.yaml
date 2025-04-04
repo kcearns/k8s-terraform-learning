@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-service
+  namespace: default
+spec:
+  selector:
+    app: mysql  # Ensure this matches the label in your MySQL deployment
+  ports:
+    - protocol: TCP
+      port: 3306  # MySQL default port
+      targetPort: 3306
+  clusterIP: None  # Optional: Use this if you want to create a headless service

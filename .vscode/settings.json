@@ -1,0 +1,5 @@
+{
+    "yaml.schemas": {
+        "kubernetes://schema/v1%40service": "file:///Users/shivam/k8s-terraform-learning/k8s/manifests/mysql-deployment.yaml"
+    }
+}

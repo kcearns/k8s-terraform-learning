@@ -21,3 +21,17 @@ teardown:
         echo "Delete KIND cluster(s): $CLUSTER_NAME"
         kind delete clusters $CLUSTER_NAME
     fi
+
+mysql:
+    #!/usr/bin/env bash
+    kubectl apply -f k8s/manifests/mysql-secret.yaml
+    kubectl apply -f k8s/manifests/mysql-storage.yaml
+    kubectl apply -f k8s/manifests/mysql-deployment.yaml
+    kubectl apply -f k8s/manifests/mysql-service.yaml
+
+wordpress:
+    #!/usr/bin/env bash
+    kubectl apply -f k8s/manifests/wordpress-service.yaml
+    kubectl apply -f k8s/manifests/wordpress-deployment.yaml
+
+
