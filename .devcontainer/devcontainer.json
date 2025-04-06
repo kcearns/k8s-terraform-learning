@@ -1,4 +1,8 @@
 {
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": "."
+  },
   "name": "K8s Terraform Learning",
   "features": {
     "ghcr.io/devcontainers/features/terraform:1": {
@@ -9,16 +13,20 @@
     },
     "ghcr.io/devcontainers/features/docker-in-docker:2": {}
   },
-  "extensions": [
-    "GitHub.copilot",
-    "GitHub.copilot-chat",
-    "HashiCorp.terraform",
-    "ms-kubernetes-tools.vscode-kubernetes-tools",
-    "redhat.vscode-yaml",
-    "ms-azuretools.vscode-docker",
-    "timoschwarzer.vscode-helm",
-    "esbenp.prettier-vscode",
-    "run-at-scale.terraform-doc-generator"
-  ],
-  "postCreateCommand": "curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.20.0/kind-linux-amd64 && chmod +x ./kind && sudo mv ./kind /usr/local/bin/kind"
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "GitHub.copilot",
+        "GitHub.copilot-chat",
+        "HashiCorp.terraform",
+        "ms-kubernetes-tools.vscode-kubernetes-tools",
+        "redhat.vscode-yaml",
+        "ms-azuretools.vscode-docker",
+        "timoschwarzer.vscode-helm",
+        "esbenp.prettier-vscode",
+        "run-at-scale.terraform-doc-generator"
+      ]
+    }
+  },
+  "postCreateCommand": "bash .devcontainer/setup.sh"
 }
