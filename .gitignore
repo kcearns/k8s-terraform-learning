@@ -1,3 +1,67 @@
+# Terraform
+# Local .terraform directories
+**/.terraform/*
+
+# .tfstate files
+*.tfstate
+*.tfstate.*
+
+# Crash log files
+crash.log
+crash.*.log
+
+# Exclude all .tfvars files, which might contain sensitive data
+*.tfvars
+*.tfvars.json
+
+# Override files as they're usually used for local development
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Include tfplan files to ignore the plan output of command: terraform plan
+*tfplan*
+*.terraform.lock.hcl
+
+# Ignore CLI configuration files
+.terraformrc
+terraform.rc
+
+# Kubernetes
+# kubeconfig files
+kubeconfig*
+*kubeconfig*
+
+# kubectl generated output
+*.yaml.bak
+*.yaml.rendered
+
+# Secrets
+*.pem
+*.key
+*.pub
+*credentials*
+*secrets*
+*secret*
+*token*
+*.env
+
+# OS specific files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# Editor directories and files
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
 # Logs
 logs
 *.log
@@ -134,3 +198,10 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# Temporary files
+*.tmp
+*.bak
+*.cache
+tmp/
+temp/
