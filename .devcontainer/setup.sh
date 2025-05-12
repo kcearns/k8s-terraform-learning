@@ -35,7 +35,7 @@ sudo apt-get install -y terraform
 # Install just
 echo "Installing just..."
 if ! command -v just &> /dev/null; then
-  curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to /usr/local/bin
+  curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | sudo bash -s -- --to /usr/local/bin
 fi
 
 # Print versions for verification
