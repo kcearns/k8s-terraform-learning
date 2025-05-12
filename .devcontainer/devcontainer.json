@@ -9,8 +9,7 @@
 			"extensions": [
 				"GitHub.copilot",
 				"arcticicestudio.nord-visual-studio-code",
-				"PKief.material-icon-theme",
-				""
+				"PKief.material-icon-theme"
 			]
 		}
 	}
