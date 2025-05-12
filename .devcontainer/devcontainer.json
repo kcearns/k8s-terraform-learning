@@ -7,7 +7,9 @@
 	"customizations": {
 		"vscode": {
 			"extensions": [
-				"arcticicestudio.nord-visual-studio-code"
+				"GitHub.copilot",
+				"arcticicestudio.nord-visual-studio-code",
+				"PKief.material-icon-theme"
 			]
 		}
 	}
