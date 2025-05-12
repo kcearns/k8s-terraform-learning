@@ -10,7 +10,11 @@
                 "GitHub.copilot",
                 "arcticicestudio.nord-visual-studio-code",
                 "PKief.material-icon-theme"
-            ]
+            ],
+            "settings": {
+                "workbench.colorTheme": "Nord",
+                "workbench.iconTheme": "material-icon-theme"
+            }
         }
     },
 
