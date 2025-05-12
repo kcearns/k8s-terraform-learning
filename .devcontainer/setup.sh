@@ -38,6 +38,15 @@ if ! command -v just &> /dev/null; then
   curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | sudo bash -s -- --to /usr/local/bin
 fi
 
+# Install K9s
+echo "Installing K9s..."
+K9S_VERSION=$(curl -s https://api.github.com/repos/derailed/k9s/releases/latest | jq -r '.tag_name')
+curl -Lo ./k9s.tar.gz "https://github.com/derailed/k9s/releases/download/${K9S_VERSION}/k9s_Linux_amd64.tar.gz"
+tar -xzf k9s.tar.gz
+chmod +x k9s
+sudo mv ./k9s /usr/local/bin/
+rm k9s.tar.gz
+
 # Print versions for verification
 echo "Installation complete. Verifying versions:"
 docker --version || echo "Docker not installed properly"
@@ -45,5 +54,6 @@ kind --version || echo "Kind not installed properly"
 kubectl version --client || echo "Kubectl not installed properly"
 terraform --version || echo "Terraform not installed properly"
 just --version || echo "Just not installed properly"
+k9s version --short || echo "K9s not installed properly"
 
 echo "Setup completed successfully"
