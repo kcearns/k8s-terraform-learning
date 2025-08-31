@@ -1,0 +1,53 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: my-eksctl-cluster
+  region: us-east-1
+  version: "1.30"
+
+# Use existing VPC and subnets (similar to terraform config)
+vpc:
+  # Let eksctl use the default VPC
+  autoAllocateIPv6: false
+
+# Configure managed node groups
+managedNodeGroups:
+  - name: ng-1
+    instanceType: t3.micro
+    minSize: 1
+    maxSize: 3
+    desiredCapacity: 2
+    volumeSize: 20
+    volumeType: gp3
+    amiFamily: AmazonLinux2
+    ssh:
+      enableSsm: true
+    iam:
+      withAddonPolicies:
+        imageBuilder: true
+        autoScaler: true
+        certManager: true
+        efs: true
+        ebs: true
+        fsx: true
+        albIngress: true
+        xRay: true
+        cloudWatch: true
+
+# Configure add-ons
+addons:
+  - name: vpc-cni
+    version: latest
+  - name: coredns  
+    version: latest
+  - name: kube-proxy
+    version: latest
+  - name: aws-ebs-csi-driver
+    version: latest
+
+# Configure logging
+cloudWatch:
+  clusterLogging:
+    enable: ["api", "audit", "authenticator", "controllerManager", "scheduler"]
+    logRetentionInDays: 7

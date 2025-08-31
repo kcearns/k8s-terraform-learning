@@ -38,9 +38,27 @@ if ! command -v just &> /dev/null; then
   curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | sudo bash -s -- --to /usr/local/bin
 fi
 
+# Install eksctl
+echo "Installing eksctl..."
+EKSCTL_VERSION="v0.191.0"  # Use specific version to avoid API calls
+curl -Lo ./eksctl.tar.gz "https://github.com/eksctl-io/eksctl/releases/download/${EKSCTL_VERSION}/eksctl_Linux_amd64.tar.gz"
+tar -xzf eksctl.tar.gz
+chmod +x eksctl
+sudo mv ./eksctl /usr/local/bin/
+rm eksctl.tar.gz
+
+# Install AWS CLI (if not already installed)
+echo "Installing AWS CLI..."
+if ! command -v aws &> /dev/null; then
+  curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+  unzip awscliv2.zip
+  sudo ./aws/install
+  rm -rf aws awscliv2.zip
+fi
+
 # Install K9s
 echo "Installing K9s..."
-K9S_VERSION=$(curl -s https://api.github.com/repos/derailed/k9s/releases/latest | jq -r '.tag_name')
+K9S_VERSION="v0.32.5"  # Use specific version to avoid API calls
 curl -Lo ./k9s.tar.gz "https://github.com/derailed/k9s/releases/download/${K9S_VERSION}/k9s_Linux_amd64.tar.gz"
 tar -xzf k9s.tar.gz
 chmod +x k9s
@@ -54,6 +72,8 @@ kind --version || echo "Kind not installed properly"
 kubectl version --client || echo "Kubectl not installed properly"
 terraform --version || echo "Terraform not installed properly"
 just --version || echo "Just not installed properly"
+eksctl version || echo "eksctl not installed properly"
+aws --version || echo "AWS CLI not installed properly"
 k9s version --short || echo "K9s not installed properly"
 
 echo "Setup completed successfully"
