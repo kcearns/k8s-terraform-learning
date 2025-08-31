@@ -5,11 +5,16 @@ metadata:
   name: my-eksctl-cluster
   region: us-east-1
   version: "1.30"
+  tags:
+    Environment: production
+    Project: k8s-terraform-learning
+    CreatedBy: eksctl
 
-# Use existing VPC and subnets (similar to terraform config)
+# Production cluster with full features
 vpc:
-  # Let eksctl use the default VPC
   autoAllocateIPv6: false
+  nat:
+    gateway: HighlyAvailable  # Multiple NAT gateways for HA
 
 # Configure managed node groups
 managedNodeGroups:
@@ -34,6 +39,12 @@ managedNodeGroups:
         albIngress: true
         xRay: true
         cloudWatch: true
+    tags:
+      Environment: production
+      NodeGroup: primary
+    labels:
+      environment: production
+      workload-type: general
 
 # Configure add-ons
 addons:

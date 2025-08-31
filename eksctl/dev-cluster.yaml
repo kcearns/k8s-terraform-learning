@@ -5,10 +5,16 @@ metadata:
   name: dev-eksctl-cluster
   region: us-east-1
   version: "1.30"
+  tags:
+    Environment: development
+    Project: k8s-terraform-learning
+    CreatedBy: eksctl
 
 # Minimal development cluster configuration
 vpc:
   autoAllocateIPv6: false
+  nat:
+    gateway: Single # Use single NAT gateway for cost savings
 
 managedNodeGroups:
   - name: dev-nodes
@@ -20,13 +26,19 @@ managedNodeGroups:
     volumeType: gp3
     amiFamily: AmazonLinux2
     ssh:
-      enableSsm: true
+      enableSsm: true  # Enable SSM for secure access without SSH keys
     iam:
       withAddonPolicies:
         imageBuilder: true
         autoScaler: true
         ebs: true
         albIngress: true
+    tags:
+      Environment: development
+      NodeGroup: dev-nodes
+    labels:
+      environment: development
+      cost-optimized: "true"
 
 # Essential add-ons only for development
 addons:
