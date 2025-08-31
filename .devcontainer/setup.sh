@@ -38,22 +38,40 @@ if ! command -v just &> /dev/null; then
   curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | sudo bash -s -- --to /usr/local/bin
 fi
 
+
 # Install eksctl
 echo "Installing eksctl..."
 EKSCTL_VERSION="v0.191.0"  # Use specific version to avoid API calls
-curl -Lo ./eksctl.tar.gz "https://github.com/eksctl-io/eksctl/releases/download/${EKSCTL_VERSION}/eksctl_Linux_amd64.tar.gz"
-tar -xzf eksctl.tar.gz
-chmod +x eksctl
-sudo mv ./eksctl /usr/local/bin/
+set -x
+curl -Lo ./eksctl.tar.gz "https://github.com/eksctl-io/eksctl/releases/download/${EKSCTL_VERSION}/eksctl_Linux_amd64.tar.gz" || { echo "Failed to download eksctl"; exit 1; }
+tar -xzf eksctl.tar.gz || { echo "Failed to extract eksctl"; exit 1; }
+chmod +x eksctl || { echo "Failed to chmod eksctl"; exit 1; }
+sudo mv ./eksctl /usr/local/bin/ || { echo "Failed to move eksctl to /usr/local/bin"; exit 1; }
 rm eksctl.tar.gz
+set +x
+ls -l /usr/local/bin/eksctl || echo "eksctl not found in /usr/local/bin after move"
+ls -l /usr/local/bin | grep eksctl || echo "eksctl not listed in /usr/local/bin"
+if ! command -v eksctl &> /dev/null; then
+  echo "eksctl installation failed. Please check the logs above."
+  exit 1
+fi
+
 
 # Install AWS CLI (if not already installed)
 echo "Installing AWS CLI..."
 if ! command -v aws &> /dev/null; then
-  curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-  unzip awscliv2.zip
-  sudo ./aws/install
+  set -x
+  curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" || { echo "Failed to download AWS CLI"; exit 1; }
+  unzip awscliv2.zip || { echo "Failed to unzip AWS CLI"; exit 1; }
+  sudo ./aws/install || { echo "Failed to install AWS CLI"; exit 1; }
   rm -rf aws awscliv2.zip
+  set +x
+  ls -l /usr/local/bin/aws* || echo "aws not found in /usr/local/bin after install"
+  ls -l /usr/local/bin | grep aws || echo "aws not listed in /usr/local/bin"
+  if ! command -v aws &> /dev/null; then
+    echo "AWS CLI installation failed. Please check the logs above."
+    exit 1
+  fi
 fi
 
 # Install K9s
@@ -72,6 +90,10 @@ kind --version || echo "Kind not installed properly"
 kubectl version --client || echo "Kubectl not installed properly"
 terraform --version || echo "Terraform not installed properly"
 just --version || echo "Just not installed properly"
+echo "PATH is: $PATH"
+ls -l /usr/local/bin | grep -E 'aws|eksctl' || echo "Neither aws nor eksctl found in /usr/local/bin"
+which aws || echo "which aws: not found"
+which eksctl || echo "which eksctl: not found"
 eksctl version || echo "eksctl not installed properly"
 aws --version || echo "AWS CLI not installed properly"
 k9s version --short || echo "K9s not installed properly"
