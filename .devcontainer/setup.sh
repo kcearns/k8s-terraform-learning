@@ -7,6 +7,15 @@ echo "Setting up development environment..."
 sudo apt-get update
 sudo apt-get install -y curl jq wget unzip gnupg lsb-release
 
+# Install AWS CLI
+echo "Installing AWS CLI..."
+if ! command -v aws &> /dev/null; then
+  curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+  unzip awscliv2.zip
+  sudo ./aws/install
+  rm -rf awscliv2.zip aws/
+fi
+
 # Install Docker CLI (should already be available via feature, but just in case)
 if ! command -v docker &> /dev/null; then
   echo "Docker not found, installing Docker CLI..."
@@ -49,6 +58,7 @@ rm k9s.tar.gz
 
 # Print versions for verification
 echo "Installation complete. Verifying versions:"
+aws --version || echo "AWS CLI not installed properly"
 docker --version || echo "Docker not installed properly"
 kind --version || echo "Kind not installed properly"
 kubectl version --client || echo "Kubectl not installed properly"
