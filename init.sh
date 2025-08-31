@@ -21,7 +21,12 @@ fi
 echo "Waiting for cluster to be ready..."
 kubectl wait --for=condition=Ready nodes --all --timeout=60s
 
-echo "Cluster is ready! You can now run:"
+echo "Local Kind cluster is ready! You can now run:"
 echo "just nginx - to deploy the nginx example"
 echo "just netshoot - to run a debugging container"
 echo "just teardown - to delete the cluster when you're done"
+echo ""
+echo "For cloud clusters with AWS EKS:"
+echo "./setup-eks.sh - interactive EKS cluster setup"
+echo "just eks-create-dev - create development EKS cluster"
+echo "just eks-delete-dev - delete development EKS cluster"

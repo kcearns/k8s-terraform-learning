@@ -37,6 +37,10 @@ kubeconfig*
 *.yaml.bak
 *.yaml.rendered
 
+# eksctl generated files
+eksctl-cluster-*.yaml
+nodegroup-*.yaml
+
 # Secrets
 *.pem
 *.key

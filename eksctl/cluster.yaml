@@ -1,0 +1,64 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: my-eksctl-cluster
+  region: us-east-1
+  version: "1.30"
+  tags:
+    Environment: production
+    Project: k8s-terraform-learning
+    CreatedBy: eksctl
+
+# Production cluster with full features
+vpc:
+  autoAllocateIPv6: false
+  nat:
+    gateway: HighlyAvailable  # Multiple NAT gateways for HA
+
+# Configure managed node groups
+managedNodeGroups:
+  - name: ng-1
+    instanceType: t3.micro
+    minSize: 1
+    maxSize: 3
+    desiredCapacity: 2
+    volumeSize: 20
+    volumeType: gp3
+    amiFamily: AmazonLinux2
+    ssh:
+      enableSsm: true
+    iam:
+      withAddonPolicies:
+        imageBuilder: true
+        autoScaler: true
+        certManager: true
+        efs: true
+        ebs: true
+        fsx: true
+        albIngress: true
+        xRay: true
+        cloudWatch: true
+    tags:
+      Environment: production
+      NodeGroup: primary
+    labels:
+      environment: production
+      workload-type: general
+
+# Configure add-ons
+addons:
+  - name: vpc-cni
+    version: latest
+  - name: coredns  
+    version: latest
+  - name: kube-proxy
+    version: latest
+  - name: aws-ebs-csi-driver
+    version: latest
+
+# Configure logging
+cloudWatch:
+  clusterLogging:
+    enable: ["api", "audit", "authenticator", "controllerManager", "scheduler"]
+    logRetentionInDays: 7
