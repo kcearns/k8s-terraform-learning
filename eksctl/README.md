@@ -12,6 +12,7 @@ This directory contains configuration files for creating Amazon EKS clusters usi
 
 - `cluster.yaml`: Full-featured production-ready cluster configuration
 - `dev-cluster.yaml`: Minimal development cluster configuration (cost-optimized)
+- `nextjs-cluster.yaml`: Production cluster optimized for Next.js applications
 
 ## Quick Start
 
@@ -71,10 +72,13 @@ just eks-delete
 |---------|-------------|
 | `just eks-create` | Create production cluster |
 | `just eks-create-dev` | Create development cluster |
+| `just nextjs-eks-create` | Create Next.js-optimized cluster |
 | `just eks-delete` | Delete production cluster |
 | `just eks-delete-dev` | Delete development cluster |
+| `just nextjs-eks-delete` | Delete Next.js cluster |
 | `just eks-update-kubeconfig` | Update kubectl context for production cluster |
 | `just eks-update-kubeconfig-dev` | Update kubectl context for dev cluster |
+| `just nextjs-eks-kubeconfig` | Update kubectl context for Next.js cluster |
 | `just eks-nodes` | List node groups for production cluster |
 | `just eks-nodes-dev` | List node groups for dev cluster |
 
@@ -155,6 +159,35 @@ Monitor your AWS costs and remember to delete test clusters:
 eksctl get clusters --region=us-east-1
 just eks-delete-dev
 ```
+
+## Next.js on EKS
+
+For deploying Next.js applications on EKS, see the dedicated Next.js setup:
+
+### Quick Start
+
+```bash
+# Create Next.js-optimized cluster
+just nextjs-eks-create
+
+# Update kubectl context
+just nextjs-eks-kubeconfig
+
+# Build the Next.js Docker image
+just nextjs-build
+
+# Deploy Next.js application
+just nextjs-deploy
+
+# Check status
+just nextjs-status
+
+# Clean up
+just nextjs-delete
+just nextjs-eks-delete
+```
+
+For detailed Next.js deployment instructions, see [nextjs-app/README.md](../nextjs-app/README.md).
 
 ## Learning Resources
 

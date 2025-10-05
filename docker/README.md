@@ -2,15 +2,58 @@
 
 This directory contains Docker container configurations for the project.
 
-## Dockerfile
+## Dockerfiles
 
-A simple nginx-based Dockerfile that can be used as a starting point for building custom container images.
+This directory contains multiple Dockerfile examples:
 
-### Base Image
+- **Dockerfile**: Simple nginx-based container for static sites
+- **Dockerfile.nextjs**: Production-optimized multi-stage build for Next.js applications
+
+### Dockerfile (nginx)
+
+#### Base Image
 
 - **Image**: `nginx:1.25.4-alpine`
 - **Why Alpine**: Smaller image size (~40MB vs ~140MB for standard nginx)
 - **Security**: Alpine is a minimal Linux distribution with fewer potential vulnerabilities
+
+### Dockerfile.nextjs (Next.js)
+
+A production-optimized multi-stage Docker build for Next.js applications.
+
+#### Features
+
+- **Multi-stage build**: Separates dependencies, build, and runtime stages
+- **Optimized size**: Uses standalone output (~120MB vs ~1GB for full build)
+- **Security**: Runs as non-root user (nextjs:nodejs)
+- **Performance**: Includes only production dependencies
+- **Node.js 18 Alpine**: Minimal base image
+
+#### Build Process
+
+1. **Stage 1 (deps)**: Installs production dependencies only
+2. **Stage 2 (builder)**: Builds the Next.js application
+3. **Stage 3 (runner)**: Creates minimal runtime image with only necessary files
+
+#### Usage
+
+```bash
+# Build from the repository root
+docker build -f docker/Dockerfile.nextjs -t nextjs-app:latest ./nextjs-app
+
+# Or use the just command
+just nextjs-build
+
+# Run locally
+docker run -p 3000:3000 nextjs-app:latest
+```
+
+#### Configuration
+
+The Dockerfile is configured for Next.js applications with:
+- `output: 'standalone'` in next.config.js (required)
+- Health check endpoint at `/api/health` (recommended)
+- Environment variables via ConfigMap or Secrets in Kubernetes
 
 ### Configuration
 

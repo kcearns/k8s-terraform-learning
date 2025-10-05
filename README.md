@@ -53,6 +53,29 @@ just nginx
 just eks-delete-dev
 ```
 
+### Next.js on EKS (AWS costs apply)
+```bash
+# Create Next.js-optimized EKS cluster
+just nextjs-eks-create
+
+# Update kubectl context
+just nextjs-eks-kubeconfig
+
+# Build and deploy (see NEXTJS-DEPLOYMENT-GUIDE.md for image registry setup)
+just nextjs-build
+# Push to registry (ECR or Docker Hub)
+just nextjs-deploy
+
+# Check status
+just nextjs-status
+
+# Clean up (important!)
+just nextjs-delete
+just nextjs-eks-delete
+```
+
+For complete Next.js deployment instructions, see [NEXTJS-DEPLOYMENT-GUIDE.md](NEXTJS-DEPLOYMENT-GUIDE.md).
+
 ## Commands
 
 ### Docker
@@ -70,22 +93,44 @@ kubectl get nodes
 ```
 
 ### Available just commands
+
+**Cluster Management:**
 - `just kind` - Create local Kind cluster
 - `just eks-create-dev` - Create development EKS cluster
-- `just eks-create` - Create production EKS cluster  
-- `just nginx` - Deploy sample nginx application
-- `just netshoot` - Run debugging container
+- `just eks-create` - Create production EKS cluster
+- `just nextjs-eks-create` - Create Next.js-optimized EKS cluster
 - `just teardown` - Delete Kind cluster
 - `just eks-delete-dev` - Delete development EKS cluster
 - `just eks-delete` - Delete production EKS cluster
+- `just nextjs-eks-delete` - Delete Next.js EKS cluster
+
+**Application Deployment:**
+- `just nginx` - Deploy sample nginx application
+- `just nextjs-build` - Build Next.js Docker image
+- `just nextjs-deploy` - Deploy Next.js application
+- `just nextjs-status` - Get Next.js application status
+- `just nextjs-logs` - View Next.js application logs
+- `just nextjs-delete` - Delete Next.js application
+
+**Utilities:**
+- `just netshoot` - Run debugging container
 
 ## Project Structure
 
 ```
 ├── k8s/                    # Kubernetes manifests and Kind config
+│   └── manifests/
+│       ├── nginx.yaml      # Sample nginx deployment
+│       └── nextjs.yaml     # Next.js deployment configuration
 ├── eksctl/                 # eksctl cluster configurations
+│   ├── cluster.yaml        # Production cluster
+│   ├── dev-cluster.yaml    # Development cluster
+│   └── nextjs-cluster.yaml # Next.js-optimized cluster
 ├── terraform/              # Terraform EKS infrastructure
 ├── docker/                 # Container configurations
+│   ├── Dockerfile          # nginx Dockerfile
+│   └── Dockerfile.nextjs   # Next.js production Dockerfile
+├── nextjs-app/            # Sample Next.js application
 ├── .devcontainer/         # Development environment setup
 └── justfile               # Command shortcuts
 ```
@@ -111,12 +156,14 @@ kubectl get nodes
 ## Documentation
 
 - **[CLUSTER-COMPARISON.md](CLUSTER-COMPARISON.md)** - Detailed comparison of Kind, eksctl, and Terraform
+- **[NEXTJS-DEPLOYMENT-GUIDE.md](NEXTJS-DEPLOYMENT-GUIDE.md)** - Complete guide for deploying Next.js on AWS EKS
 - **[CONTRIBUTING.md](CONTRIBUTING.md)** - Guidelines for contributing to this project
 - **Component Documentation**:
   - [k8s/README.md](k8s/README.md) - Kind cluster and Kubernetes manifests
   - [eksctl/README.md](eksctl/README.md) - EKS cluster with eksctl
   - [terraform/README.md](terraform/README.md) - EKS cluster with Terraform
   - [docker/README.md](docker/README.md) - Docker container configurations
+  - [nextjs-app/README.md](nextjs-app/README.md) - Next.js application setup
   - [.devcontainer/README.md](.devcontainer/README.md) - Development environment
 
 ## Resources
