@@ -21,13 +21,17 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Build Docker image
-        run: |
-          docker build \
-            --file docker/Dockerfile \
-            --tag pr-image:${{ github.sha }} \
-            docker
+        uses: docker/build-push-action@v5
+        with:
+          context: ./docker
+          file: docker/Dockerfile
+          tags: pr-image:${{ github.sha }}
+          push: false
+          load: true
 
       - name: Scan image with Trivy
+        id: trivy
+        continue-on-error: true
         uses: aquasecurity/trivy-action@0.20.0
         with:
           image-ref: pr-image:${{ github.sha }}
@@ -38,7 +42,13 @@ jobs:
           output: trivy-results.sarif
 
       - name: Upload Trivy scan results
-        if: always()
+        if: always() && steps.trivy.outcome != 'skipped'
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: trivy-results.sarif
+
+      - name: Fail on detected vulnerabilities
+        if: steps.trivy.outcome == 'failure'
+        run: |
+          echo "Trivy detected HIGH or CRITICAL vulnerabilities. See uploaded SARIF report for details."
+          exit 1
