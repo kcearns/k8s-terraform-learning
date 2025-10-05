@@ -120,3 +120,9 @@ k9s version --short || echo "❌ K9s not installed properly"
 echo "============================================"
 echo "✅ Setup completed successfully"
 echo "============================================"
+
+# Configure AWS credentials if environment variables are available
+echo ""
+if [ -f ".devcontainer/configure-aws.sh" ]; then
+  bash .devcontainer/configure-aws.sh
+fi

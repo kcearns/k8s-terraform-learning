@@ -146,7 +146,11 @@ kubectl get nodes
    - Use the devcontainer for a pre-configured environment
    - Or install tools manually: kubectl, kind, eksctl, terraform
 
-3. **Follow the documentation:**
+3. **Configure AWS credentials** (for EKS clusters):
+   - See [AWS-SETUP.md](AWS-SETUP.md) for detailed instructions
+   - Use GitHub Codespaces secrets for automatic configuration
+
+4. **Follow the documentation:**
    - [k8s/README.md](k8s/README.md) for Kind and local development
    - [eksctl/README.md](eksctl/README.md) for eksctl usage
    - [terraform/README.md](terraform/README.md) for Terraform usage
@@ -155,6 +159,7 @@ kubectl get nodes
 
 ## Documentation
 
+- **[AWS-SETUP.md](AWS-SETUP.md)** - 🔐 How to configure AWS credentials for Codespaces and EKS
 - **[CLUSTER-COMPARISON.md](CLUSTER-COMPARISON.md)** - Detailed comparison of Kind, eksctl, and Terraform
 - **[NEXTJS-DEPLOYMENT-GUIDE.md](NEXTJS-DEPLOYMENT-GUIDE.md)** - Complete guide for deploying Next.js on AWS EKS
 - **[CONTRIBUTING.md](CONTRIBUTING.md)** - Guidelines for contributing to this project

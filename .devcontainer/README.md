@@ -103,11 +103,25 @@ The automated setup script that:
 After opening in devcontainer for the first time:
 
 1. **Wait for setup to complete** - Check the terminal output
+
 2. **Configure AWS credentials** (if using EKS):
+   
+   **Option A: GitHub Codespaces Secrets (Recommended)**
+   - Add `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` to your repository's Codespaces secrets
+   - Credentials will be automatically configured when the Codespace starts
+   - See [AWS-SETUP.md](../AWS-SETUP.md) for detailed instructions
+   
+   **Option B: Manual Configuration**
    ```bash
    aws configure
    ```
-3. **Create your first cluster**:
+
+3. **Verify AWS credentials** (if configured):
+   ```bash
+   aws sts get-caller-identity
+   ```
+
+4. **Create your first cluster**:
    ```bash
    # Local cluster (free)
    just kind
@@ -193,6 +207,8 @@ The devcontainer automatically mounts:
 - SSH keys (for GitHub access)
 
 AWS credentials and kube configs persist in the container's file system between sessions.
+
+**For GitHub Codespaces users**: Use repository secrets to automatically configure AWS credentials. See [AWS-SETUP.md](../AWS-SETUP.md) for instructions.
 
 ## Troubleshooting
 
