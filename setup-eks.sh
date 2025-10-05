@@ -1,4 +1,7 @@
 #!/bin/bash
+# setup-eks.sh - Interactive EKS cluster setup with eksctl
+# This script guides you through creating an AWS EKS cluster
+# Usage: ./setup-eks.sh
 set -e
 
 echo "🚀 EKS cluster setup with eksctl"

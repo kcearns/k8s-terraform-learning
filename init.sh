@@ -1,4 +1,7 @@
 #!/bin/bash
+# init.sh - Quick setup script for local Kind cluster
+# This script installs Kind (if needed) and creates a local Kubernetes cluster
+# Usage: ./init.sh
 set -e
 
 # Check if Kind is installed
