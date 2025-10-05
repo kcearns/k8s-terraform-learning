@@ -41,61 +41,82 @@ fi
 
 # Install eksctl
 echo "Installing eksctl..."
-EKSCTL_VERSION="v0.191.0"  # Use specific version to avoid API calls
-set -x
-curl -Lo ./eksctl.tar.gz "https://github.com/eksctl-io/eksctl/releases/download/${EKSCTL_VERSION}/eksctl_Linux_amd64.tar.gz" || { echo "Failed to download eksctl"; exit 1; }
-tar -xzf eksctl.tar.gz || { echo "Failed to extract eksctl"; exit 1; }
-chmod +x eksctl || { echo "Failed to chmod eksctl"; exit 1; }
-mv ./eksctl /usr/local/bin/ || { echo "Failed to move eksctl to /usr/local/bin"; exit 1; }
-rm eksctl.tar.gz
-set +x
-ls -l /usr/local/bin/eksctl || echo "eksctl not found in /usr/local/bin after move"
-ls -l /usr/local/bin | grep eksctl || echo "eksctl not listed in /usr/local/bin"
 if ! command -v eksctl &> /dev/null; then
-  echo "eksctl installation failed. Please check the logs above."
-  exit 1
+  EKSCTL_VERSION="v0.191.0"  # Use specific version to avoid API calls
+  TMPDIR=$(mktemp -d)
+  cd "$TMPDIR"
+  echo "Working in temporary directory: $TMPDIR"
+  curl -Lo eksctl.tar.gz "https://github.com/eksctl-io/eksctl/releases/download/${EKSCTL_VERSION}/eksctl_Linux_amd64.tar.gz"
+  tar -xzf eksctl.tar.gz
+  chmod +x eksctl
+  mv eksctl /usr/local/bin/
+  cd -
+  rm -rf "$TMPDIR"
+  if ! command -v eksctl &> /dev/null; then
+    echo "ERROR: eksctl installation failed"
+    exit 1
+  fi
+  echo "eksctl installed successfully"
+else
+  echo "eksctl already installed"
 fi
 
 
 # Install AWS CLI (if not already installed)
 echo "Installing AWS CLI..."
 if ! command -v aws &> /dev/null; then
-  set -x
-  curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" || { echo "Failed to download AWS CLI"; exit 1; }
-  unzip awscliv2.zip || { echo "Failed to unzip AWS CLI"; exit 1; }
-  ./aws/install || { echo "Failed to install AWS CLI"; exit 1; }
-  rm -rf aws awscliv2.zip
-  set +x
-  ls -l /usr/local/bin/aws* || echo "aws not found in /usr/local/bin after install"
-  ls -l /usr/local/bin | grep aws || echo "aws not listed in /usr/local/bin"
+  TMPDIR=$(mktemp -d)
+  cd "$TMPDIR"
+  echo "Working in temporary directory: $TMPDIR"
+  curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+  unzip -q awscliv2.zip
+  ./aws/install
+  cd -
+  rm -rf "$TMPDIR"
   if ! command -v aws &> /dev/null; then
-    echo "AWS CLI installation failed. Please check the logs above."
+    echo "ERROR: AWS CLI installation failed"
     exit 1
   fi
+  echo "AWS CLI installed successfully"
+else
+  echo "AWS CLI already installed"
 fi
 
 # Install K9s
 echo "Installing K9s..."
-K9S_VERSION="v0.32.5"  # Use specific version to avoid API calls
-curl -Lo ./k9s.tar.gz "https://github.com/derailed/k9s/releases/download/${K9S_VERSION}/k9s_Linux_amd64.tar.gz"
-tar -xzf k9s.tar.gz
-chmod +x k9s
-mv ./k9s /usr/local/bin/
-rm k9s.tar.gz
+if ! command -v k9s &> /dev/null; then
+  K9S_VERSION="v0.32.5"  # Use specific version to avoid API calls
+  TMPDIR=$(mktemp -d)
+  cd "$TMPDIR"
+  echo "Working in temporary directory: $TMPDIR"
+  curl -Lo k9s.tar.gz "https://github.com/derailed/k9s/releases/download/${K9S_VERSION}/k9s_Linux_amd64.tar.gz"
+  tar -xzf k9s.tar.gz
+  chmod +x k9s
+  mv k9s /usr/local/bin/
+  cd -
+  rm -rf "$TMPDIR"
+  if ! command -v k9s &> /dev/null; then
+    echo "ERROR: K9s installation failed"
+    exit 1
+  fi
+  echo "K9s installed successfully"
+else
+  echo "K9s already installed"
+fi
 
 # Print versions for verification
+echo ""
+echo "============================================"
 echo "Installation complete. Verifying versions:"
-docker --version || echo "Docker not installed properly"
-kind --version || echo "Kind not installed properly"
-kubectl version --client || echo "Kubectl not installed properly"
-terraform --version || echo "Terraform not installed properly"
-just --version || echo "Just not installed properly"
-echo "PATH is: $PATH"
-ls -l /usr/local/bin | grep -E 'aws|eksctl' || echo "Neither aws nor eksctl found in /usr/local/bin"
-which aws || echo "which aws: not found"
-which eksctl || echo "which eksctl: not found"
-eksctl version || echo "eksctl not installed properly"
-aws --version || echo "AWS CLI not installed properly"
-k9s version --short || echo "K9s not installed properly"
-
-echo "Setup completed successfully"
+echo "============================================"
+docker --version || echo "❌ Docker not installed properly"
+kind --version || echo "❌ Kind not installed properly"
+kubectl version --client || echo "❌ Kubectl not installed properly"
+terraform --version || echo "❌ Terraform not installed properly"
+just --version || echo "❌ Just not installed properly"
+eksctl version || echo "❌ eksctl not installed properly"
+aws --version || echo "❌ AWS CLI not installed properly"
+k9s version --short || echo "❌ K9s not installed properly"
+echo "============================================"
+echo "✅ Setup completed successfully"
+echo "============================================"
