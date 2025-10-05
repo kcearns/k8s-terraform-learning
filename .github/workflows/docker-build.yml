@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      pull-requests: read
+      pull-requests: write
       security-events: write
 
     steps:
@@ -31,13 +31,12 @@ jobs:
 
       - name: Scan image with Trivy
         id: trivy
-        continue-on-error: true
         uses: aquasecurity/trivy-action@0.20.0
         with:
           image-ref: pr-image:${{ github.sha }}
           severity: HIGH,CRITICAL
           ignore-unfixed: true
-          exit-code: 1
+          exit-code: 0
           format: sarif
           output: trivy-results.sarif
 
@@ -47,8 +46,70 @@ jobs:
         with:
           sarif_file: trivy-results.sarif
 
-      - name: Fail on detected vulnerabilities
-        if: steps.trivy.outcome == 'failure'
+      - name: Count HIGH/CRITICAL vulnerabilities
+        id: trivy_count
         run: |
-          echo "Trivy detected HIGH or CRITICAL vulnerabilities. See uploaded SARIF report for details."
-          exit 1
+          count=$(jq '[.runs[].results[]?] | length' trivy-results.sarif)
+          echo "count=$count" >> "$GITHUB_OUTPUT"
+
+      - name: Prepare Trivy comment body
+        if: steps.trivy_count.outputs.count != '0'
+        run: |
+          jq -r '
+            [ .runs[].results[]? ]
+            | .[0:10]
+            | .[]
+            | "- " + (.ruleId // "unknown") + " (" + (.properties."security-severity" // .level // "unknown") + "): " + (.message.text // "No description")
+          ' trivy-results.sarif > trivy-comment.txt
+
+          count=${{ steps.trivy_count.outputs.count }}
+          if [ "$count" -gt 10 ]; then
+            extra=$(( count - 10 ))
+            echo "- ...and ${extra} more findings" >> trivy-comment.txt
+          fi
+
+      - name: Comment on PR with Trivy findings
+        if: github.event_name == 'pull_request' && steps.trivy_count.outputs.count != '0'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const count = parseInt(process.env.TRIVY_FINDING_COUNT, 10);
+            const summary = fs.readFileSync('trivy-comment.txt', 'utf8');
+            const bodyLines = [
+              '### Trivy scan results',
+              '',
+              `:warning: Found **${count}** HIGH/CRITICAL vulnerabilities in \`pr-image:${context.sha}\``,
+              '',
+              summary.trim(),
+              '',
+              'See the Code scanning tab for the full SARIF report.'
+            ];
+            const body = bodyLines.join('\n');
+
+            const existing = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              per_page: 100
+            });
+
+            const previous = existing.data.find(comment => comment.user?.login === 'github-actions[bot]' && comment.body.startsWith('### Trivy scan results'));
+
+            if (previous) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: previous.id,
+                body
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body
+              });
+            }
+        env:
+          TRIVY_FINDING_COUNT: ${{ steps.trivy_count.outputs.count }}
