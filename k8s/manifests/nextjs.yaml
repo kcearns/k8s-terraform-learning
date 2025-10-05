@@ -1,0 +1,187 @@
+---
+# Namespace for Next.js application (optional)
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: nextjs-app
+  labels:
+    app: nextjs
+
+---
+# ConfigMap for Next.js environment variables
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nextjs-config
+  namespace: nextjs-app
+data:
+  NODE_ENV: "production"
+  NEXT_TELEMETRY_DISABLED: "1"
+
+---
+# Deployment for Next.js application
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nextjs-deployment
+  namespace: nextjs-app
+  labels:
+    app: nextjs
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: nextjs
+  template:
+    metadata:
+      labels:
+        app: nextjs
+    spec:
+      serviceAccountName: nextjs-service-account
+      containers:
+      - name: nextjs
+        image: your-registry/nextjs-app:latest  # Replace with your image
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3000
+          name: http
+          protocol: TCP
+        env:
+        - name: NODE_ENV
+          valueFrom:
+            configMapKeyRef:
+              name: nextjs-config
+              key: NODE_ENV
+        - name: NEXT_TELEMETRY_DISABLED
+          valueFrom:
+            configMapKeyRef:
+              name: nextjs-config
+              key: NEXT_TELEMETRY_DISABLED
+        # Add any additional environment variables here
+        # - name: DATABASE_URL
+        #   valueFrom:
+        #     secretKeyRef:
+        #       name: nextjs-secrets
+        #       key: database-url
+        resources:
+          limits:
+            cpu: "1"
+            memory: "1Gi"
+          requests:
+            cpu: "250m"
+            memory: "512Mi"
+        livenessProbe:
+          httpGet:
+            path: /api/health
+            port: 3000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /api/health
+            port: 3000
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+      # Optional: Use affinity rules to spread pods across nodes
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - nextjs
+              topologyKey: kubernetes.io/hostname
+
+---
+# Service for Next.js application
+apiVersion: v1
+kind: Service
+metadata:
+  name: nextjs-service
+  namespace: nextjs-app
+  labels:
+    app: nextjs
+spec:
+  type: ClusterIP
+  selector:
+    app: nextjs
+  ports:
+  - port: 80
+    targetPort: 3000
+    protocol: TCP
+    name: http
+
+---
+# Horizontal Pod Autoscaler for Next.js
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: nextjs-hpa
+  namespace: nextjs-app
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: nextjs-deployment
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+
+---
+# Ingress for Next.js application (AWS ALB)
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: nextjs-ingress
+  namespace: nextjs-app
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/healthcheck-path: /api/health
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
+    # Optional: SSL/TLS certificate
+    # alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-1:xxx:certificate/xxx
+    # alb.ingress.kubernetes.io/ssl-redirect: '443'
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: nextjs-service
+            port:
+              number: 80
+
+---
+# ServiceAccount for Next.js pods
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: nextjs-service-account
+  namespace: nextjs-app
+  annotations:
+    # Link to IAM role for IRSA (IAM Roles for Service Accounts)
+    # eks.amazonaws.com/role-arn: arn:aws:iam::ACCOUNT_ID:role/nextjs-service-role

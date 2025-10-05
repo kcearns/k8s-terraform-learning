@@ -1,0 +1,80 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: nextjs-eksctl-cluster
+  region: us-east-1
+  version: "1.30"
+  tags:
+    Environment: production
+    Project: k8s-terraform-learning
+    Application: nextjs
+    CreatedBy: eksctl
+
+# VPC configuration optimized for Next.js applications
+vpc:
+  autoAllocateIPv6: false
+  nat:
+    gateway: HighlyAvailable  # Multiple NAT gateways for HA
+
+# Node groups optimized for Next.js workloads
+managedNodeGroups:
+  - name: nextjs-nodes
+    instanceType: t3.small  # Next.js needs more memory than t3.micro
+    minSize: 2
+    maxSize: 4
+    desiredCapacity: 2
+    volumeSize: 30  # Larger volume for Node.js dependencies
+    volumeType: gp3
+    amiFamily: AmazonLinux2
+    ssh:
+      enableSsm: true  # Enable SSM for secure access
+    iam:
+      withAddonPolicies:
+        imageBuilder: true
+        autoScaler: true
+        ebs: true
+        albIngress: true  # For Application Load Balancer
+        cloudWatch: true
+        externalDNS: true
+    tags:
+      Environment: production
+      NodeGroup: nextjs
+      Application: nextjs
+    labels:
+      environment: production
+      workload-type: web
+      app: nextjs
+    # Taints to dedicate nodes to Next.js workloads (optional)
+    # taints:
+    #   - key: "workload"
+    #     value: "nextjs"
+    #     effect: "NoSchedule"
+
+# Configure essential add-ons for Next.js deployment
+addons:
+  - name: vpc-cni
+    version: latest
+  - name: coredns  
+    version: latest
+  - name: kube-proxy
+    version: latest
+  - name: aws-ebs-csi-driver  # For persistent volumes
+    version: latest
+
+# CloudWatch logging for monitoring Next.js applications
+cloudWatch:
+  clusterLogging:
+    enable: ["api", "audit", "authenticator", "controllerManager", "scheduler"]
+    logRetentionInDays: 7
+
+# IAM service accounts for Next.js workloads
+iam:
+  withOIDC: true
+  serviceAccounts:
+    - metadata:
+        name: nextjs-service-account
+        namespace: default
+      attachPolicyARNs:
+        - arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess  # For assets/static files
+        - arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy  # For logging

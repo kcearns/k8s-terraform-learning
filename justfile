@@ -55,6 +55,55 @@ netshoot:
     #!/usr/bin/env bash
     kubectl run -it --rm --restart=Never netshoot --image nicolaka/netshoot -- bash
 
+# Next.js EKS cluster management
+
+# Create Next.js-optimized EKS cluster
+nextjs-eks-create:
+    #!/usr/bin/env bash
+    eksctl create cluster -f eksctl/nextjs-cluster.yaml
+
+# Delete Next.js EKS cluster
+nextjs-eks-delete:
+    #!/usr/bin/env bash
+    eksctl delete cluster --region=us-east-1 --name=nextjs-eksctl-cluster
+
+# Update kubectl context for Next.js cluster
+nextjs-eks-kubeconfig:
+    #!/usr/bin/env bash
+    eksctl utils write-kubeconfig --cluster=nextjs-eksctl-cluster --region=us-east-1
+
+# Build Next.js Docker image
+nextjs-build:
+    #!/usr/bin/env bash
+    docker build -f docker/Dockerfile.nextjs -t nextjs-app:latest ./nextjs-app
+
+# Deploy Next.js application to current cluster
+nextjs-deploy:
+    #!/usr/bin/env bash
+    kubectl apply -f k8s/manifests/nextjs.yaml
+
+# Delete Next.js application from cluster
+nextjs-delete:
+    #!/usr/bin/env bash
+    kubectl delete -f k8s/manifests/nextjs.yaml
+
+# View Next.js application logs
+nextjs-logs:
+    #!/usr/bin/env bash
+    kubectl logs -f -n nextjs-app -l app=nextjs
+
+# Get Next.js application status
+nextjs-status:
+    #!/usr/bin/env bash
+    echo "=== Pods ===" && \
+    kubectl get pods -n nextjs-app && \
+    echo "" && \
+    echo "=== Service ===" && \
+    kubectl get svc -n nextjs-app && \
+    echo "" && \
+    echo "=== Ingress ===" && \
+    kubectl get ingress -n nextjs-app
+
 # Delete local Kind cluster
 teardown:
     #!/usr/bin/env bash
