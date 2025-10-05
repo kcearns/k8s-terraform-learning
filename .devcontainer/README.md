@@ -75,6 +75,13 @@ The main configuration file that defines:
   - GitHub Copilot (AI pair programmer)
   - Nord theme (color scheme)
   - Material Icon Theme (file icons)
+  - HashiCorp Terraform (syntax highlighting and IntelliSense)
+  - Kubernetes Tools (cluster management and YAML support)
+  - YAML Language Support (validation and completion)
+  - Docker (Dockerfile and docker-compose support)
+  - ShellCheck (shell script linting)
+  - Shell Format (shell script formatting)
+  - Just (justfile syntax support)
 - **Features**:
   - Docker-outside-of-Docker (access host's Docker daemon)
 - **Post-Create Command**: Runs `setup.sh` after container creation

@@ -9,11 +9,26 @@
             "extensions": [
                 "GitHub.copilot",
                 "arcticicestudio.nord-visual-studio-code",
-                "PKief.material-icon-theme"
+                "PKief.material-icon-theme",
+                "hashicorp.terraform",
+                "ms-kubernetes-tools.vscode-kubernetes-tools",
+                "redhat.vscode-yaml",
+                "ms-azuretools.vscode-docker",
+                "timonwong.shellcheck",
+                "foxundermoon.shell-format",
+                "skellock.just"
             ],
             "settings": {
                 "workbench.colorTheme": "Nord",
-                "workbench.iconTheme": "material-icon-theme"
+                "workbench.iconTheme": "material-icon-theme",
+                "files.associations": {
+                    "*.yaml": "yaml",
+                    "*.yml": "yaml",
+                    "justfile": "just"
+                },
+                "yaml.schemas": {
+                    "kubernetes": "k8s/**/*.yaml"
+                }
             }
         }
     },
