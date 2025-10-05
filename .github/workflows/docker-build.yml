@@ -13,6 +13,8 @@ jobs:
       pull-requests: write
       packages: write
       security-events: write
+    env:
+      GHCR_IMAGE: ghcr.io/${{ github.repository }}/nginx
 
     steps:
       - name: Checkout repository
@@ -23,7 +25,10 @@ jobs:
 
       - name: Extract short SHA
         id: meta
-        run: echo "short=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+        run: |
+          short=${GITHUB_SHA::7}
+          echo "short=${short}" >> "$GITHUB_OUTPUT"
+          echo "image=${GHCR_IMAGE}:${short}" >> "$GITHUB_OUTPUT"
 
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
@@ -37,9 +42,7 @@ jobs:
         with:
           context: ./docker
           file: docker/Dockerfile
-          tags: |
-            pr-image:${{ github.sha }}
-            ghcr.io/${{ github.repository }}/nginx:${{ steps.meta.outputs.short }}
+          tags: ${{ steps.meta.outputs.image }}
           push: true
           load: true
 
@@ -47,7 +50,7 @@ jobs:
         id: trivy
         uses: aquasecurity/trivy-action@0.20.0
         with:
-          image-ref: pr-image:${{ github.sha }}
+          image-ref: ${{ steps.meta.outputs.image }}
           severity: HIGH,CRITICAL
           ignore-unfixed: true
           exit-code: 0
@@ -93,7 +96,7 @@ jobs:
             const bodyLines = [
               '### Trivy scan results',
               '',
-              `:warning: Found **${count}** HIGH/CRITICAL vulnerabilities in \`pr-image:${context.sha}\``,
+              `:warning: Found **${count}** HIGH/CRITICAL vulnerabilities in \`${process.env.TRIVY_IMAGE_REF}\``,
               '',
               summary.trim(),
               '',
@@ -127,3 +130,4 @@ jobs:
             }
         env:
           TRIVY_FINDING_COUNT: ${{ steps.trivy_count.outputs.count }}
+          TRIVY_IMAGE_REF: ${{ steps.meta.outputs.image }}
