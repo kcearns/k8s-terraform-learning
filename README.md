@@ -8,6 +8,7 @@ This repository provides multiple ways to learn and experiment with Kubernetes c
 - **Purpose**: Local testing and development
 - **Cost**: Free
 - **Setup**: `just kind`
+- **Documentation**: See [k8s/README.md](k8s/README.md)
 
 ### 2. AWS EKS with eksctl
 - **Purpose**: Quick cloud cluster setup with opinionated defaults
@@ -101,8 +102,22 @@ kubectl get nodes
    - Or install tools manually: kubectl, kind, eksctl, terraform
 
 3. **Follow the documentation:**
+   - [k8s/README.md](k8s/README.md) for Kind and local development
    - [eksctl/README.md](eksctl/README.md) for eksctl usage
    - [terraform/README.md](terraform/README.md) for Terraform usage
+   - [docker/README.md](docker/README.md) for Docker containers
+   - [.devcontainer/README.md](.devcontainer/README.md) for development environment setup
+
+## Documentation
+
+- **[CLUSTER-COMPARISON.md](CLUSTER-COMPARISON.md)** - Detailed comparison of Kind, eksctl, and Terraform
+- **[CONTRIBUTING.md](CONTRIBUTING.md)** - Guidelines for contributing to this project
+- **Component Documentation**:
+  - [k8s/README.md](k8s/README.md) - Kind cluster and Kubernetes manifests
+  - [eksctl/README.md](eksctl/README.md) - EKS cluster with eksctl
+  - [terraform/README.md](terraform/README.md) - EKS cluster with Terraform
+  - [docker/README.md](docker/README.md) - Docker container configurations
+  - [.devcontainer/README.md](.devcontainer/README.md) - Development environment
 
 ## Resources
 
