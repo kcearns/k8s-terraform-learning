@@ -5,7 +5,7 @@ This directory contains configuration files for creating Amazon EKS clusters usi
 ## Prerequisites
 
 - [eksctl](https://eksctl.io/installation/) (installed via devcontainer setup)
-- AWS CLI configured with appropriate credentials
+- AWS CLI configured with appropriate credentials - **See [AWS-SETUP.md](../AWS-SETUP.md) for setup instructions**
 - kubectl (to interact with the cluster after creation)
 
 ## Configuration Files
@@ -140,8 +140,14 @@ This repository also includes Terraform configurations for EKS. Here's when to u
 ## Troubleshooting
 
 ### Authentication Issues
-Ensure AWS credentials are configured:
+Ensure AWS credentials are configured. See [AWS-SETUP.md](../AWS-SETUP.md) for detailed instructions.
+
+Quick check:
 ```bash
+# Verify credentials are configured
+aws sts get-caller-identity
+
+# If not configured, run:
 aws configure
 # or
 export AWS_PROFILE=your-profile
